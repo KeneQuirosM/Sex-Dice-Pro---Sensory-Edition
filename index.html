@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sex Dice Pro - Sensory Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="setup-screen" class="screen">
+        <div class="setup-box">
+            <h1>SEX DICE</h1>
+            <input type="text" id="nombre-h" placeholder="Nombre de Él">
+            <input type="text" id="nombre-m" placeholder="Nombre de Ella">
+            <button onclick="empezarJuego()">EMPEZAR</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="game-container" style="display: none;">
+        <div class="top-controls">
+            <button id="btn-voice-toggle" class="voice-trigger">🔊</button>
+            <button id="btn-settings" class="settings-trigger">⚙️</button>
+        </div>
+
+        <div class="mode-selector">
+            <button id="btn-suave" class="mode-btn active">SUAVE</button>
+            <button id="btn-extremo" class="mode-btn">EXTREMO</button>
+        </div>
+
+        <div class="main-display">
+            <div id="display-quien" class="card-mini quien">¿QUIÉN?</div>
+            <div id="dice-accion" class="card accion">ACCIÓN</div>
+            <div id="dice-cuerpo" class="card cuerpo">CUERPO</div>
+            <div id="dice-condicion" class="card-mini condicion">MODO: NORMAL</div>
+            <div id="dice-tiempo" class="card-mini tiempo">TIEMPO</div>
+        </div>
+
+        <div id="timer-box" class="timer-container" style="visibility: hidden;">
+            <div id="timer-display">00:00</div>
+            <div class="timer-controls">
+                <button id="btn-timer">ARRANCAR</button>
+                <button id="btn-reroll-tiempo" title="Cambiar tiempo">🔄</button>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="btn-wildcard" class="wildcard-btn">🃏 CARTA SALVAJE 🃏</button>
+            <button id="btn-lanzar" class="main-btn">TIRAR DADOS</button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h3>MIS ACCIONES</h3>
+            <textarea id="custom-extremo" placeholder="Ej: Usa hielo, Azota, Pon esposas..."></textarea>
+            <div class="modal-btns">
+                <button onclick="guardarConfig()">GUARDAR</button>
+                <button onclick="cerrarConfig()" class="btn-cancelar">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="alarma-audio" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+    <script src="js/script.js"></script>
+</body>
+</html>
