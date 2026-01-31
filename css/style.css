@@ -53,3 +53,40 @@ body {
 .wildcard-active { border-color: #ffeb3b !important; color: #ffeb3b !important; box-shadow: 0 0 30px #ffeb3b !important; }
 .pop { animation: pop 0.3s ease; }
 @keyframes pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
+
+/* Contenedor para posicionar el botón arriba a la derecha */
+.lang-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+}
+
+#btn-lang-toggle {
+    background: rgba(20, 20, 20, 0.8); /* Fondo oscuro semi-transparente */
+    color: #ff0055; /* Color neón */
+    border: 2px solid #ff0055;
+    padding: 8px 12px;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Efecto al tocar o pasar el ratón */
+#btn-lang-toggle:hover {
+    background: #ff0055;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
+    transform: scale(1.05);
+}
+
+/* Efecto cuando se presiona */
+#btn-lang-toggle:active {
+    transform: scale(0.95);
+}
