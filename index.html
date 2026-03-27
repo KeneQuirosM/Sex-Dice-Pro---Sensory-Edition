@@ -2,69 +2,98 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sex Dice Pro - Sensory Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Desire Dice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="setup-screen" class="screen">
-        <div class="setup-box">
-            <h1>SEX DICE</h1>
-            <input type="text" id="nombre-h" placeholder="Nombre de Él">
-            <input type="text" id="nombre-m" placeholder="Nombre de Ella">
-            <button onclick="empezarJuego()">EMPEZAR</button>
-        </div>
+
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<div id="setup">
+  <div class="slogo">DESIRE</div>
+  <div class="ssub">Dados del Deseo &bull; Sensory Edition</div>
+  <div class="sform">
+    <div class="iw">
+      <input type="text" id="inp-h" placeholder=" " maxlength="14" autocomplete="off">
+      <label for="inp-h">Nombre de Él</label>
     </div>
-    <div class="lang-container">
-            <button id="btn-lang-toggle" onclick="cambiarIdioma()">ES</button>
-        </div>
-    <div class="app-container" id="game-container" style="display: none;">
-        
-        <div class="top-controls">
-            <button id="btn-voice-toggle" class="voice-trigger">🔊</button>
-            <button id="btn-settings" class="settings-trigger">⚙️</button>
-        </div>
-
-        <div class="mode-selector">
-            <button id="btn-suave" class="mode-btn active">SUAVE</button>
-            <button id="btn-extremo" class="mode-btn">EXTREMO</button>
-        </div>
-
-        <div class="main-display">
-            <div id="display-quien" class="card-mini quien">¿QUIÉN?</div>
-            <div id="dice-accion" class="card accion">ACCIÓN</div>
-            <div id="dice-cuerpo" class="card cuerpo">CUERPO</div>
-            <div id="dice-condicion" class="card-mini condicion">MODO: NORMAL</div>
-            <div id="dice-tiempo" class="card-mini tiempo">TIEMPO</div>
-        </div>
-
-        <div id="timer-box" class="timer-container" style="visibility: hidden;">
-            <div id="timer-display">00:00</div>
-            <div class="timer-controls">
-                <button id="btn-timer">ARRANCAR</button>
-                <button id="btn-reroll-tiempo" title="Cambiar tiempo">🔄</button>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <button id="btn-wildcard" class="wildcard-btn">🃏 CARTA SALVAJE 🃏</button>
-            <button id="btn-lanzar" class="main-btn">TIRAR DADOS</button>
-        </div>
+    <div class="iw">
+      <input type="text" id="inp-m" placeholder=" " maxlength="14" autocomplete="off">
+      <label for="inp-m">Nombre de Ella</label>
     </div>
+    <button class="sbtn" onclick="empezar()">EMPEZAR</button>
+  </div>
+</div>
 
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <h3>MIS ACCIONES</h3>
-            <textarea id="custom-extremo" placeholder="Ej: Usa hielo, Azota, Pon esposas..."></textarea>
-            <div class="modal-btns">
-                <button onclick="guardarConfig()">GUARDAR</button>
-                <button onclick="cerrarConfig()" class="btn-cancelar">CERRAR</button>
-            </div>
-        </div>
+<div id="app">
+  <div class="topbar">
+    <div class="logo-sm">DESIRE</div>
+    <div class="topbar-r">
+      <button class="ibtn" id="btn-lang" onclick="cambiarIdioma()">ES</button>
+      <button class="ibtn" id="btn-voice" onclick="toggleVoz()">🔊</button>
+      <button class="ibtn" onclick="abrirConfig()">⚙️</button>
     </div>
+  </div>
 
-    <audio id="alarma-audio" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-    <script src="js/script.js"></script>
+  <div class="players">
+    <div class="pchip"><div class="plabel">Él</div><div class="pname" id="lbl-h">—</div></div>
+    <div class="pchip"><div class="plabel">Ella</div><div class="pname" id="lbl-m">—</div></div>
+  </div>
+
+  <div class="mode-row">
+    <button class="mbtn active" id="btn-suave" onclick="setModo('suave')">SUAVE</button>
+    <button class="mbtn" id="btn-extremo" onclick="setModo('extremo')">EXTREMO</button>
+  </div>
+
+  <div class="cards">
+    <div class="card c-quien" id="c-quien">
+      <span class="ctag">¿Quién?</span>
+      <span id="d-quien">—</span>
+    </div>
+    <div class="card c-accion" id="c-accion">
+      <span class="ctag">Acción</span>
+      <span id="d-accion">TIRA LOS DADOS</span>
+    </div>
+    <div class="card c-cuerpo" id="c-cuerpo">
+      <span class="ctag">Zona</span>
+      <span id="d-cuerpo">PARA EMPEZAR</span>
+    </div>
+    <div class="card-sm c-condicion" id="c-condicion"><span id="d-condicion">MODO: NORMAL</span></div>
+    <div class="card-sm c-tiempo" id="c-tiempo"><span id="d-tiempo">TIEMPO</span></div>
+  </div>
+
+  <div class="timer-wrap hidden" id="timer-wrap">
+    <div class="tdisp" id="tdisp">00:00</div>
+    <div class="tbtns">
+      <button class="tbtn tre" onclick="rerollTiempo()">🔄</button>
+      <button class="tbtn tgo" id="btn-timer" onclick="toggleTimer()">ARRANCAR</button>
+    </div>
+  </div>
+
+  <div class="abtns">
+    <button class="btn-wild" id="btn-wild" onclick="wildcard()">🃏 RETO SALVAJE 🃏</button>
+    <button class="btn-roll" id="btn-roll" onclick="lanzar()">TIRAR DADOS</button>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="mbox">
+    <h3>MIS ACCIONES</h3>
+    <p>Agrega acciones personalizadas para el modo Extremo, una por línea.</p>
+    <textarea id="txt-custom" placeholder="Ej: Usa hielo en...&#10;Masajea con aceite..."></textarea>
+    <div class="mbtns">
+      <button class="msave" onclick="guardarConfig()">GUARDAR</button>
+      <button class="mclose" onclick="cerrarConfig()">CERRAR</button>
+    </div>
+  </div>
+</div>
+
+<audio id="alarma" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="none"></audio>
+
+<script src="script.js"></script>
 </body>
 </html>
