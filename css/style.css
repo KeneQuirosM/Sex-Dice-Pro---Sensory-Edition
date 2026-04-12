@@ -103,3 +103,32 @@ body{background:var(--bg);color:var(--w);font-family:var(--fb);display:flex;alig
 .pop{animation:pop .35s ease}
 .rolling{animation:shake .09s linear infinite}
 .wflash{animation:glow .55s ease infinite;box-shadow:0 0 40px var(--g)!important;border-color:var(--g)!important}
+
+/* Modo misterio: botón activo */
+#btn-misterio.active {
+  color: var(--c);
+  background: var(--sur);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+}
+
+/* Botón "Siguiente paso" */
+.btn-next {
+  background: linear-gradient(135deg, var(--p), var(--c));
+  border: none;
+  border-radius: 50px;
+  padding: 14px;
+  font-family: var(--fd);
+  font-size: 1.1rem;
+  letter-spacing: .1em;
+  color: #000;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: transform .15s, opacity .2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+}
+.btn-next:active {
+  transform: scale(0.97);
+}
+.btn-next.hidden {
+  display: none;
+}
