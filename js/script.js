@@ -1,6 +1,9 @@
 // ── DATA ─────────────────────────────────────────────────────────────────────
 
 // ── DATA ── VERSIÓN SÚPER SEXY ────────────────────────────────────────────────
+let misterioActivo = false;      // Modo misterio activado
+let tiradaPendiente = null;      // Tirada guardada para revelar paso a paso
+let pasoActual = 0;              // 0=quién, 1=acción, 2=zona, 3=condición, 4=tiempo
 
 const DATA = {
   es: {
@@ -38,7 +41,7 @@ const DATA = {
         "Muerde a lo largo de todo el recorrido","Lame desde abajo hasta arriba lentísimo",
       ],
       especificas: [
-        { a:"Mete el pebe hasta el fondo de su garganta", z:"la garganta", actor:"ella" },
+        { a:"Mete el pene hasta el fondo de su garganta", z:"la garganta", actor:"ella" },
         { a:"Chupa solo la cabeza mientras la miras", z:"el glande", actor:"ella" },
         { a:"Lame los huevos uno por uno lentamente", z:"los testículos", actor:"ella" },
         { a:"Masturba con la mano bien apretada y giros", z:"El pene", actor:"ella" },
@@ -154,6 +157,13 @@ function cambiarIdioma() {
   actualizarUI();
 }
 
+
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = value;
+  else console.error(`Elemento con id "${id}" no encontrado`);
+}
+
 function actualizarUI() {
   const ui = DATA[lang].ui;
   const set = (id, val) => { const el = $(id); if(el) el.textContent = val; };
@@ -247,15 +257,65 @@ function resolverRonda() {
   return { actor: actorNombre, accion: accionTxt, zona: zonaTxt, condicion, tiempoObj };
 }
 
+function siguientePaso() {
+  if (!misterioActivo || !tiradaPendiente) return;
+  
+  pasoActual++;
+  const r = tiradaPendiente;
+  
+  switch(pasoActual) {
+    case 1:
+      setText('d-accion', r.accion);
+      hablar(r.accion);
+      break;
+    case 2:
+      setText('d-cuerpo', r.zona);
+      hablar(r.zona);
+      break;
+    case 3:
+      setText('d-condicion', r.condicion);
+      hablar(r.condicion);
+      break;
+    case 4:
+      setText('d-tiempo', r.tiempoObj.txt);
+      timerSeg = r.tiempoObj.seg;
+      actualizarReloj();
+      const tw = $('timer-wrap');
+      if (tw) tw.classList.remove('hidden');
+      const btnNext = $('btn-next');
+      if (btnNext) btnNext.style.display = 'none';
+      hablar(`Tiempo: ${r.tiempoObj.txt}`);
+      tiradaPendiente = null;
+      pasoActual = 0;
+      break;
+  }
+}
+
+// Función auxiliar para asignar textContent de forma segura
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = value;
+  else console.error(`Elemento con id "${id}" no encontrado`);
+}
 // ── ROLL ANIMATION ────────────────────────────────────────────────────────────
 
 function lanzar() {
-  detenerTimer();
-  const tw = $('timer-wrap'); if(tw) tw.classList.add('hidden');
-  const br = $('btn-roll'); if(br) br.disabled = true;
+  if (misterioActivo && tiradaPendiente) {
+    hablar(lang === 'es' ? 'Primero completa la tirada actual' : 'Finish current roll first');
+    return;
+  }
 
-  const cardIds = ['c-accion','c-cuerpo','c-condicion','c-tiempo'];
-  cardIds.forEach(id => { const el=$(id); if(el) el.classList.add('rolling'); });
+  detenerTimer();
+  const tw = $('timer-wrap');
+  if (tw) tw.classList.add('hidden');
+  const br = $('btn-roll');
+  if (br) br.disabled = true;
+
+  const cardIds = ['c-accion', 'c-cuerpo', 'c-condicion', 'c-tiempo'];
+  cardIds.forEach(id => {
+    const el = $(id);
+    if (el) el.classList.add('rolling');
+  });
 
   let tick = 0;
   const total = 15;
@@ -263,42 +323,61 @@ function lanzar() {
   const iv = setInterval(() => {
     const d = DATA[lang];
     const esHAnim = Math.random() > 0.5;
-    $('d-quien').textContent = esHAnim ? nombres.h : nombres.m;
+    setText('d-quien', esHAnim ? nombres.h : nombres.m);
 
-    if(modo==='suave'){
-      $('d-accion').textContent = pick(d.suave.acciones);
-      $('d-cuerpo').textContent = pick(d.suave.zonas);
+    if (modo === 'suave') {
+      setText('d-accion', pick(d.suave.acciones));
+      setText('d-cuerpo', pick(d.suave.zonas));
     } else {
-      const todas = [...d.extremo.neutras, ...d.extremo.especificas.map(e=>e.a)];
-      $('d-accion').textContent = pick(todas);
-      $('d-cuerpo').textContent = pick(esHAnim ? d.extremo.zonasElHace : d.extremo.zonasEllaHace);
+      const todas = [...d.extremo.neutras, ...d.extremo.especificas.map(e => e.a)];
+      setText('d-accion', pick(todas));
+      setText('d-cuerpo', pick(esHAnim ? d.extremo.zonasElHace : d.extremo.zonasEllaHace));
     }
-    $('d-condicion').textContent = pick(d.condiciones);
-    $('d-tiempo').textContent = pick(d.tiempos).txt;
+    setText('d-condicion', pick(d.condiciones));
+    setText('d-tiempo', pick(d.tiempos).txt);
 
     tick++;
-    if(tick >= total) {
+    if (tick >= total) {
       clearInterval(iv);
       const r = resolverRonda();
-      $('d-quien').textContent  = r.actor;
-      $('d-accion').textContent = r.accion;
-      $('d-cuerpo').textContent = r.zona;
-      $('d-condicion').textContent = r.condicion;
-      $('d-tiempo').textContent = r.tiempoObj.txt;
-      timerSeg = r.tiempoObj.seg;
-      actualizarReloj();
+
+      if (misterioActivo) {
+        tiradaPendiente = r;
+        pasoActual = 0;
+        setText('d-quien', r.actor);
+        setText('d-accion', '???');
+        setText('d-cuerpo', '???');
+        setText('d-condicion', '???');
+        setText('d-tiempo', '???');
+        const btnNext = $('btn-next');
+        if (btnNext) btnNext.style.display = 'block';
+        const tw2 = $('timer-wrap');
+        if (tw2) tw2.classList.add('hidden');
+        hablar(`${r.actor}... (siguiente paso)`);
+      } else {
+        setText('d-quien', r.actor);
+        setText('d-accion', r.accion);
+        setText('d-cuerpo', r.zona);
+        setText('d-condicion', r.condicion);
+        setText('d-tiempo', r.tiempoObj.txt);
+        timerSeg = r.tiempoObj.seg;
+        actualizarReloj();
+        const tw2 = $('timer-wrap');
+        if (tw2) tw2.classList.remove('hidden');
+        hablar(`${r.actor}: ${r.accion} ${r.zona}`);
+      }
 
       cardIds.forEach(id => {
         const el = $(id);
-        if(!el) return;
-        el.classList.remove('rolling');
-        el.classList.add('pop');
-        setTimeout(()=>el.classList.remove('pop'), 400);
+        if (el) {
+          el.classList.remove('rolling');
+          el.classList.add('pop');
+          setTimeout(() => el.classList.remove('pop'), 400);
+        }
       });
 
-      const tw2 = $('timer-wrap'); if(tw2) tw2.classList.remove('hidden');
-      const br2 = $('btn-roll'); if(br2) br2.disabled = false;
-      hablar(`${r.actor}: ${r.accion} ${r.zona}`);
+      const br2 = $('btn-roll');
+      if (br2) br2.disabled = false;
     }
   }, 65);
 }
@@ -358,6 +437,39 @@ function rerollTiempo() {
   actualizarReloj();
 }
 
+function toggleMisterio() {
+  misterioActivo = !misterioActivo;
+  const btn = $('btn-misterio');
+  if (btn) btn.classList.toggle('active', misterioActivo);
+  if (!misterioActivo && tiradaPendiente) {
+    cancelarModoMisterio();
+  }
+  if (!misterioActivo) {
+    const btnNext = $('btn-next');
+    if (btnNext) btnNext.style.display = 'none';
+  }
+}
+
+
+function cancelarModoMisterio() {
+  if (tiradaPendiente) {
+    tiradaPendiente = null;
+    pasoActual = 0;
+    const btnNext = $('btn-next');
+    if (btnNext) btnNext.style.display = 'none';
+    setText('d-quien', '—');
+    setText('d-accion', 'TIRA LOS DADOS');
+    setText('d-cuerpo', 'PARA EMPEZAR');
+    setText('d-condicion', 'MODO: NORMAL');
+    setText('d-tiempo', 'TIEMPO');
+    detenerTimer();
+    const tw = $('timer-wrap');
+    if (tw) tw.classList.add('hidden');
+    const br = $('btn-roll');
+    if (br) br.disabled = false;
+  }
+}
+
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 
 function abrirConfig() {
@@ -371,15 +483,27 @@ function guardarConfig() {
   cerrarConfig();
 }
 
-// Init seguro
 function _init() {
+  // Botón "Siguiente paso"
+  const btnNext = $('btn-next');
+  if (btnNext) btnNext.addEventListener('click', siguientePaso);
+
+  // Botón modo misterio
+  const btnMisterio = $('btn-misterio');
+  if (btnMisterio) {
+    btnMisterio.addEventListener('click', toggleMisterio);
+    btnMisterio.classList.remove('active');
+  }
+
+  // Cerrar modal al hacer clic fuera
   const modal = $('modal');
-  if(modal) modal.addEventListener('click', e=>{ if(e.target===modal) cerrarConfig(); });
+  if (modal) {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) cerrarConfig();
+    });
+  }
+
+  // Estado inicial del botón de voz
   const bv = $('btn-voice');
-  if(bv) bv.classList.toggle('off', !vozOn);
-}
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _init);
-} else {
-  _init();
+  if (bv) bv.classList.toggle('off', !vozOn);
 }
