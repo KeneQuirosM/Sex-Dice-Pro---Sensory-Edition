@@ -45,12 +45,15 @@
     <div class="pchip"><div class="plabel">Ella</div><div class="pname" id="lbl-m">—</div></div>
   </div>
 
-  <div class="mode-row">
-    <button class="mbtn active" id="btn-suave" onclick="setModo('suave')">SUAVE</button>
-    <button class="mbtn" id="btn-extremo" onclick="setModo('extremo')">EXTREMO</button>
-  </div>
+ <div class="mode-row">
+  <button class="mbtn active" id="btn-suave" onclick="setModo('suave')">SUAVE</button>
+  <button class="mbtn" id="btn-extremo" onclick="setModo('extremo')">EXTREMO</button>
+  <button class="mbtn" id="btn-misterio" onclick="toggleMisterio()">🎭 MISTERIO</button>
+</div>
 
   <div class="cards">
+    <!-- Botón para siguiente paso (modo misterio) -->
+  <button class="btn-next" id="btn-next" style="display: none;" onclick="siguientePaso()">✨ SIGUIENTE PASO →</button>
     <div class="card c-quien" id="c-quien">
       <span class="ctag">¿Quién?</span>
       <span id="d-quien">—</span>
